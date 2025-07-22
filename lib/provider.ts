@@ -1,7 +1,13 @@
-import { RulesType } from "./types";
+import { InheritanceMapType, RulesType } from "./type";
 
-class Provider {
-  compileInheritanceMap(rules: RulesType) {
+export abstract class RBACProvider {
+  protected _rules: RulesType;
+
+  constructor(rules: RulesType) {
+    this._rules = rules;
+  }
+
+  compileInheritanceMap(rules: RulesType): InheritanceMapType {
     throw new Error("Not implemented");
   }
 
