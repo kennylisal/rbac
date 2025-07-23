@@ -1,7 +1,7 @@
-import { RBACProvider } from "../provider";
+import RBACProvider from "../provider";
 import { InheritanceMapType, RoleDataType, RulesType } from "../type";
 
-class JsonProvider extends RBACProvider {
+export default class JsonProvider extends RBACProvider {
   protected _inheritanceMap: InheritanceMapType;
   constructor(rules: RulesType) {
     super(rules);
@@ -71,7 +71,7 @@ class JsonProvider extends RBACProvider {
   }
 
   //get the whole permission with, his inherrited permission
-  getAllPermissionWithMap(role: string): string[] {
+  getInheritedPermission(role: string): string[] {
     if (this._rules[role] === undefined) {
       return [];
     }
@@ -106,6 +106,14 @@ class JsonProvider extends RBACProvider {
       arrRes = [...arrRes, ...this.getAttributes(e)];
     });
     return arrRes;
+  }
+
+  getUserRoles(roles: string[]): InheritanceMapType {
+    const map: InheritanceMapType = {};
+    for (const role of roles) {
+      map[role] = [role, ...this._inheritanceMap[role]];
+    }
+    return map;
   }
 }
 

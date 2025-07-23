@@ -10,13 +10,15 @@ interface NewContextExample extends DefaultContext {
   role: string[];
 }
 
-type AttributeHandler<T> = (context: T) => boolean;
+type AttributeHandler<T> = (context: T) => boolean | Promise<boolean>;
 
 interface AttributesMap<T> {
   [key: string]: AttributeHandler<T>;
 }
 
-export class AttributesManager<T extends DefaultContext = DefaultContext> {
+export default class AttributesManager<
+  T extends DefaultContext = DefaultContext
+> {
   private _attributes: AttributesMap<T>;
   // private _options: Options;
 
@@ -31,13 +33,13 @@ export class AttributesManager<T extends DefaultContext = DefaultContext> {
     return this;
   }
 
-  remove(attribute: string): (context: T) => boolean {
+  remove(attribute: string): AttributeHandler<T> {
     const remove = this._attributes[attribute];
     delete this._attributes[attribute];
     return remove;
   }
 
-  validate(attribute: string, context: T): boolean {
+  validate(attribute: string, context: T): boolean | Promise<boolean> {
     if (this._attributes[attribute] === undefined) {
       throw new Error("Attributes has not been defined berforhand");
     } else {
@@ -45,3 +47,5 @@ export class AttributesManager<T extends DefaultContext = DefaultContext> {
     }
   }
 }
+
+// let attBaru: AttributesManager = new AttributesManager();
