@@ -16,7 +16,7 @@ This is a simple RABC implementation built with typescript with inention to be m
 
 - **`RBACProvider`**: An abstract class defining the interface for retrieving roles, permissions, and attributes.
 - **`JsonProvider`**: A concrete implementation of `RBACProvider` that uses JSON rules and precomputes role inheritance.
-- **`AttributesManager`**: Manages attribute validation with explicit synchronous (`setSync`) and asynchronous (`setAsync`) handlers.
+- **`AttributesManager`**: Manages attribute validation which can handle syncronous and asyncronous methods.
 - **`RBAC`**: The core class that integrates `AttributesManager` and `RBACProvider` to check user permissions.
 
 ## Example Usage
