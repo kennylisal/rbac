@@ -4,15 +4,31 @@ import { DefaultContext, InheritanceMapType } from "./type";
 import RBACProvider from "./provider";
 import { permission } from "process";
 
+/**
+ * Role-Based Access Control (RBAC) class for checking user permissions and managing roles.
+ * Extends EventEmitter to emit errors during validation.
+ * Uses an AttributesManager for attribute validation and an RBACProvider for role/permission data.
+ * @remarks
+ * This class checks if a user has specific permissions based on their roles and associated attributes.
+ * Methods are asynchronous and return Promises to handle both sync and async provider/attribute operations.
+ * @template T - The context type, extending DefaultContext
+ */
 export class RBAC<
   T extends DefaultContext = DefaultContext
 > extends EventEmitter {
   readonly _attributesManager: AttributesManager<T>;
   readonly _provider: RBACProvider;
 
-  constructor(attrManager: AttributesManager<T>, provider: RBACProvider) {
+  /**
+   * Initializes a new RBAC instance with an AttributesManager and RBACProvider.
+   *
+   * @param attributesManager - The manager for validating attributes
+   * @param provider - The provider for retrieving roles, permissions, and attributes
+   * @throws TypeError if attributesManager or provider is invalid
+   */
+  constructor(attributeManager: AttributesManager<T>, provider: RBACProvider) {
     super();
-    this._attributesManager = attrManager;
+    this._attributesManager = attributeManager;
     this._provider = provider;
   }
 
@@ -47,8 +63,17 @@ export class RBAC<
     }
   }
 
-  //return all the permissions a user had
-  //each must be unique
+  /**
+   * Prepares a unique list of permissions for the given roles.
+   * Returns an array of unique permission strings.
+   * Emits an 'error' event if permission retrieval fails.
+   *
+   * @param roles - Array of role names
+   * @param emitter - EventEmitter to emit errors
+   * @param provider - RBACProvider to retrieve permissions
+   * @returns An array of unique permission strings
+   * @throws TypeError if roles is not an array
+   */
   preparePermissionList(
     roles: string[],
     emitter: EventEmitter,
@@ -70,7 +95,18 @@ export class RBAC<
     }
   }
 
-  //return all the permission that eliigible with the attributes
+  /**
+   * Filters roles based on their attributes using the AttributesManager.
+   * Returns a Promise resolving to an array of roles that pass attribute validation.
+   * Emits an 'error' event if validation fails.
+   *
+   * @param roles - Array of role names to filter
+   * @param emitter - EventEmitter to emit errors
+   * @param provider - RBACProvider to retrieve attributes
+   * @param context - The context object for attribute validation
+   * @returns A Promise resolving to an array of valid role names
+   * @throws TypeError if roles is not an array
+   */
   async filterRoleByAttributes(
     roles: string[],
     emitter: EventEmitter,
@@ -99,6 +135,17 @@ export class RBAC<
     }
   }
 
+  /**
+   * Compiles a unique list of inherited roles for the given user roles.
+   * Returns an array of unique role names, including inherited roles.
+   * Emits an 'error' event if role retrieval fails.
+   *
+   * @param roles - Array of user role names
+   * @param emitter - EventEmitter to emit errors
+   * @param provider - RBACProvider to retrieve role inheritance
+   * @returns An array of unique role names
+   * @throws TypeError if roles is not an array
+   */
   compileUserRoles(
     roles: string[],
     emitter: EventEmitter,

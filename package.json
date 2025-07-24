@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "dev": "tsc && node dist/example/script.js"
+  },
   "devDependencies": {
     "@types/node": "^24.0.15",
     "typescript": "^5.8.3"

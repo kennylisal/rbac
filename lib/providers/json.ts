@@ -1,13 +1,63 @@
 import RBACProvider from "../provider";
 import { InheritanceMapType, RoleDataType, RulesType } from "../type";
 
+/**
+ * A concrete RBACProvider implementation that stores RBAC rules in JSON format.
+ * Precomputes an inheritance map for efficient role, permission, and attribute lookups.
+ */
 export default class JsonProvider extends RBACProvider {
   protected _inheritanceMap: InheritanceMapType;
+
+  /**
+   * Initializes the provider with JSON rules and builds the inheritance map.
+   * @param rules - The JSON rules defining roles, permissions, and attributes
+   */
   constructor(rules: RulesType) {
     super(rules);
     this._inheritanceMap = this.compileInheritanceMap();
   }
+  /**
+   * Returns a map of roles to their inherited roles for the given user roles.
+   * @param roles - Array of role names
+   * @returns A map where each role maps to an array of itself and its inherited roles
+   */
+  getUserRoles(roles: string[]): InheritanceMapType {
+    const map: InheritanceMapType = {};
+    for (const role of roles) {
+      map[role] = [role, ...this._inheritanceMap[role]];
+    }
+    return map;
+  }
 
+  /**
+   * Returns the permissions for a given role.
+   * @param role - The role to query
+   * @returns Array of permission strings, or empty if role is undefined
+   */
+  getPermission(role: string): string[] {
+    if (this._rules[role] === undefined) {
+      return [];
+    }
+    return this._rules[role].permissions || [];
+  }
+
+  /**
+   * Returns the attributes for a given role.
+   * @param role - The role to query
+   * @returns Array of attribute strings, or empty if role is undefined
+   */
+  getAttributes(role: string): string[] {
+    if (this._rules[role] === undefined) {
+      return [];
+    }
+    return this._rules[role].attributes || [];
+  }
+
+  /**
+   * Builds a map of roles to their inherited roles, handling recursive inheritance.
+   * @returns A map where each role maps to an array of itself and its inherited roles
+   * @throws Error if an inherited role is undefined
+   */
   compileInheritanceMap(): InheritanceMapType {
     const inheritaceMap: InheritanceMapType = {};
     const rules = this._rules;
@@ -62,15 +112,11 @@ export default class JsonProvider extends RBACProvider {
     return inheritaceMap;
   }
 
-  //only collect permission from a role
-  getPermission(role: string): string[] {
-    if (this._rules[role] === undefined) {
-      return [];
-    }
-    return this._rules[role].permissions || [];
-  }
-
-  //get the whole permission with, his inherrited permission
+  /**
+   * Returns all permissions for a role, including inherited permissions.
+   * @param role - The role to query
+   * @returns Array of unique permission strings, or empty if role is undefined
+   */
   getInheritedPermission(role: string): string[] {
     if (this._rules[role] === undefined) {
       return [];
@@ -86,13 +132,11 @@ export default class JsonProvider extends RBACProvider {
     return arrRes;
   }
 
-  getAttributes(role: string): string[] {
-    if (this._rules[role] === undefined) {
-      return [];
-    }
-    return this._rules[role].attributes || [];
-  }
-
+  /**
+   * Returns all attributes for a role, including inherited attributes.
+   * @param role - The role to query
+   * @returns Array of unique attribute strings, or empty if role is undefined
+   */
   getAllAtributesWithMap(role: string): string[] {
     if (this._rules[role] === undefined) {
       return [];
@@ -108,12 +152,12 @@ export default class JsonProvider extends RBACProvider {
     return arrRes;
   }
 
-  getUserRoles(roles: string[]): InheritanceMapType {
-    const map: InheritanceMapType = {};
-    for (const role of roles) {
-      map[role] = [role, ...this._inheritanceMap[role]];
-    }
-    return map;
+  /**
+   * Returns the precomputed inheritance map.
+   * @returns The map of roles to their inherited roles
+   */
+  getInheritanceMap() {
+    return this._inheritanceMap;
   }
 }
 
